@@ -3,10 +3,11 @@
 
 void loop()
 {
+	SOUND(0);
+	
 	Serial.print(F("Please R/C system connect\n"));
-	while (!port(PB1))
+	while (!digitalRead(PB1))
 	{
-		// Serial.println(  pulseIn(STICK1, HIGH, 30000));
 		print_port(0, 21);
 
 		static unsigned long time;

@@ -12,11 +12,11 @@
  */
 void SET_PWM_FREQ(uint16_t Hz)
 {
-#if defined(__AVR_ATmega328P__) && !defined(OUTPUT_FULL_DIGITAL)
+#if IS_ARDUINO_NANO && !defined(OUTPUT_FULL_DIGITAL)
 	if (Hz > 245)
 		AVR_SET_PWM9_PWM10FREQ(Hz);
 
-#elif defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_MBED)
+#elif IS_RP_PICO
 	if (Hz > 2045)
 		analogWriteFreq(Hz);
 
@@ -33,10 +33,10 @@ void SET_PWM_FREQ(uint16_t Hz)
  */
 bool GET_GPIO_IN(uint8_t pin)
 {
-#if defined(__AVR_ATmega328P__)
+#if IS_ARDUINO_NANO
 	return fastestDigitalRead(pin);
 
-#elif defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_MBED)
+#elif IS_RP_PICO
 	return gpio_get(pin);
 
 #else
@@ -54,11 +54,11 @@ bool GET_GPIO_IN(uint8_t pin)
  */
 void SET_GPIO_OUT(uint8_t pin, bool val)
 {
-#if defined(__AVR_ATmega328P__)
+#if IS_ARDUINO_NANO
 	// fastestDigitalWrite(pin, val);
 	digitalWrite(pin, val);
 
-#elif defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_MBED)
+#elif IS_RP_PICO
 	gpio_put(pin, val);
 
 #else
@@ -75,10 +75,10 @@ void SET_GPIO_OUT(uint8_t pin, bool val)
  */
 int GET_GPIO_PULSE(uint8_t pin)
 {
-#if defined(__AVR_ATmega328P__)
+#if IS_ARDUINO_NANO
 	int pulse = pulseIn(pin, HIGH, 30000);
 
-#elif defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_MBED)
+#elif IS_RP_PICO
 	int pulse = pulseIn(pin, HIGH, 30000);
 	// int pulse = pulseRead(pin);
 
@@ -99,10 +99,11 @@ int GET_GPIO_PULSE(uint8_t pin)
  */
 void SET_GPIO_PWM(uint8_t pin, uint8_t val)
 {
+// 完全デジタル入出力方式の場合
 #if defined(OUTPUT_FULL_DIGITAL)
 	SET_GPIO_OUT(pin, (val > 0) ? 1 : 0);
 
-#elif defined(__AVR_ATmega328P__)
+#elif IS_ARDUINO_NANO
 	if (pin == 9)
 		AVR_SET_PWM9DUTY(val);
 	else if (pin == 10)
@@ -110,7 +111,7 @@ void SET_GPIO_PWM(uint8_t pin, uint8_t val)
 	else
 		analogWrite(pin, val);
 
-#elif defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_MBED)
+#elif IS_RP_PICO
 	analogWrite(pin, val);
 
 #else

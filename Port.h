@@ -38,19 +38,30 @@
 // 10 モタドラ
 #define lineL1 11 // 左床センサー
 #define lineR1 12
-// 13 アーム型 ソレノイド(Arduinoのみ)
 #define ST_MODULE 13 // 自立型 スタート・ストップモジュール
 
-#define FREE1 14	// 未定義1
-#define FREE2 15	// 未定義2
+#define FREE1 14 // 未定義1
+#define FREE2 15 // 未定義2
+
+#if IS_RAK11300
+#define STICK1 7 // ラジコン型 左スティック
+#define STICK2 8 // ラジコン型 右スティック
+#else
 #define STICK1 16 // ラジコン型 左スティック
 #define STICK2 17 // ラジコン型 右スティック
+#endif
 
-// A5 ブザー(Arduinoのみ)
+#if IS_RAK11300
+#define PB1 0
+#define PB2 1
+#define PB3 2
+#define PB4 3
+#else
 #define PB1 18 // コントローラー ボタン1
 #define PB2 19
 #define PB3 20
 #define PB4 21
+#endif
 
 // 22 アーム型 ソレノイド
 // 割当不可 23
@@ -197,7 +208,7 @@ void print_port(uint8_t first, uint8_t last)
 }
 
 // ラズパイピコ限定 マルチスレッド処理
-#if defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_MBED)
+#if IS_RP_PICO
 // マルチスレッド処理用の関数
 void loop1()
 {

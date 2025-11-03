@@ -7,7 +7,7 @@
 // ユーザー設定
 typedef struct
 {
-	bool robot;					// ロボットタイプ[RC|AT]
+	uint8_t robot;					// ロボットタイプ[RC|AT]
 	uint8_t controller = 0; // 使用するコントローラー[NRC|MC8|...]
 	uint8_t motor_driver = 0;
 } Config;
@@ -17,22 +17,22 @@ Config Cfg;
 enum robot_type
 {
 	RC, // ラジコン型
-	AT	 // 自立型
+	AT	// 自立型
 };
 
 // 使用するコントローラー
 enum controller_type
 {
 	FS_NRC, // 富士ソフト 新ラジ
-	KO_MC8  // 近藤科学 MC8
+	KO_MC8	// 近藤科学 MC8
 };
 
 // モータードライバの制御方式(dutyピンの数_方向指定ピンの数)
 enum motor_driver_type
 {
 	OUT_DIR_4 = 1, // BTS7960 // モーター1つでduty指定と回転方向[0,1|1,0]を2ピンで指定する
-	OUT2_DIR2,		// 寺井さん基板 // モーター1つでduty指定が1ピン、回転方向[0|1]を1ピンで指定する
-	OUT2_DIR4		// 緑のヒートシンク基板 // モーター1つでduty指定が1ピン、回転方向[0,1|1,0]を2ピンで指定する
+	OUT2_DIR2,		 // 寺井さん基板 // モーター1つでduty指定が1ピン、回転方向[0|1]を1ピンで指定する
+	OUT2_DIR4			 // 緑のヒートシンク基板 // モーター1つでduty指定が1ピン、回転方向[0,1|1,0]を2ピンで指定する
 };
 
 // ロボットタイプを指定(RC|AT)[0|1][ラ自立はRCを指定]
@@ -148,8 +148,8 @@ void SET_MD_TYPE(uint8_t type)
 		Serial.print(F("        SET_MD_TYPE(OUT_DIR_4)\n"));
 		Serial.print(F("        or SET_MD_TYPE(OUT2_DIR2)\n"));
 		Serial.print(F("        or SET_MD_TYPE(OUT2_DIR4)\n\n"));
-
-		delay(724106);
+		while (1)
+			;
 	}
 }
 
@@ -193,7 +193,7 @@ uint8_t GET_MD_TYPE()
  * @return bool
  * 		使用されている : 1
  * 		使用されていない : 0
-*/
+ */
 bool OUTPUT_PIN(uint8_t pin)
 {
 	if (pin == ARM_SOLENOID || pin == BUZZER)
@@ -247,7 +247,7 @@ bool OUTPUT_PIN(uint8_t pin)
  * @return bool
  * 		取得不可 : 1
  * 		取得可能 : 0
-*/
+ */
 bool CANNOT_GET(uint8_t pin)
 {
 	if (pin > GPIO_MAX)
@@ -260,16 +260,12 @@ bool CANNOT_GET(uint8_t pin)
 	switch (pin)
 	{
 		// arduino nanoの通信用ピン
-#if defined(__AVR_ATmega328P__)
-	case 0:
-	case 1:
-		return 1;
-		break;
+#if IS_ARDUINO_NANO
 
-#elif defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_MBED)
-	case 23:
-	case 24:
-	case 25:
+#elif IS_RP_PICO
+	case 23: // 割当不可 23(SWDIO)
+	case 24: // 割当不可 24(SWCLK)
+	case 25: // 割当不可 25(SWIO)
 		return 1;
 		break;
 #endif
@@ -281,38 +277,7 @@ bool CANNOT_GET(uint8_t pin)
 	return 0;
 }
 
-//[0|1] arduino nanoかどうか判定
-/**
- * @brief [0|1] arduino nanoかどうか判定
- * @return bool
- * 		arduino nano : 1
- * 		arduino nano以外 : 0
-*/
-bool ARDUINO_NANO()
-{
-#if defined(__AVR_ATmega328P__)
-	return true;
-#else
-	return false;
-#endif
-}
-
-//[0|1] ラズパイピコかどうか判定
-/**
- * @brief [0|1] ラズパイピコかどうか判定
- * @return bool
- * 		ラズパイピコ : 1
- * 		ラズパイピコ以外 : 0
-*/
-bool RP_PICO()
-{
-#if defined(ARDUINO_ARCH_RP2040) && !defined(ARDUINO_ARCH_MBED) // ラズパイピコ
-	return true;
-#else
-	return false;
-#endif
-}
-
+// 並列処理用ピン管理
 bool multi_flag[GPIO_MAX + 1] = {false};
 
 // 並列処理で使用するピンを設定(ピン番号)
@@ -320,7 +285,7 @@ bool multi_flag[GPIO_MAX + 1] = {false};
  * @brief 並列処理で使用するピンを設定(ピン番号)
  * @param uint8_t i
  * @return void
-*/
+ */
 void SET_MULTI_PORT(uint8_t i)
 {
 	if (i > GPIO_MAX)
@@ -336,7 +301,7 @@ void SET_MULTI_PORT(uint8_t i)
  * @return bool
  * 		並列処理用のピン : 1
  * 		並列処理用のピン以外 : 0
-*/
+ */
 bool MULTI_PORT(uint8_t i)
 {
 	if (i > GPIO_MAX)

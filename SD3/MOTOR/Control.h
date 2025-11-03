@@ -138,7 +138,6 @@ void SET_MOTOR_RAMP(int duty_ms)
 {
 #if defined(OUTPUT_FULL_DIGITAL)
 	M.ramp = 1000;
-
 #else
 	if (duty_ms >= 1 && duty_ms <= 1000)
 		M.ramp = duty_ms;
