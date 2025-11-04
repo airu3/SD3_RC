@@ -9,7 +9,7 @@
 #include <Arduino.h>
 
 #define _INLINE_ inline __attribute__((always_inline))
-_INLINE_ void fastestDigitalWrite(uint8_t pin, bool val)
+_INLINE_ void fastestDigitalWrite(uint8_t pin, uint8_t val)
 {
 #if defined(__AVR_ATmega328P__)
 	switch (val)
