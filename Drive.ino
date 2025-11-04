@@ -2,15 +2,16 @@
 void Drive()
 {
 	bool coil_state; // ソレノイド状態
-	SET_LED(1);			 // 動作開始LED点灯
-
 	while (1)
 	{
 		// 押している間だけソレノイド展開
-		// coil_state = (port(PB1)) ? 0 : 1;
+		// coil_state = (port(BTN1)) ? 0 : 1;
 		// SET_GPIO_OUT(ARM_SOLENOID, coil_state);
 
 		// 2ch RC入力を取得
+		update_port(STICK1);
+		update_port(STICK2);
+		// スティック値をdutyに変換
 		SET_RC_WHEEL_DUTY(STICK1, STICK2);
 
 #ifdef DEBUG_MODE
