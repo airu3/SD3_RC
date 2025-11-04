@@ -14,7 +14,11 @@ void SET_PWM_FREQ(uint16_t Hz)
 {
 #if IS_ARDUINO_NANO && !defined(OUTPUT_FULL_DIGITAL)
 	if (Hz > 245)
-		AVR_SET_PWM9_PWM10FREQ(Hz);
+	{
+		uint32_t actualHz = AVR_SET_PWM3_PWM11FREQ(Hz);
+		// 返ってきた "実際の" 周波数で 他のPWMも設定
+		AVR_SET_PWM9_PWM10FREQ(actualHz);
+	}
 
 #elif IS_RP_PICO
 	if (Hz > 2045)
@@ -34,10 +38,10 @@ void SET_PWM_FREQ(uint16_t Hz)
 bool GET_GPIO_IN(uint8_t pin)
 {
 #if IS_ARDUINO_NANO
-	return fastestDigitalRead(pin);
+	return fastestDigitalRead(pin); // 高速デジタル入力
 
 #elif IS_RP_PICO
-	return gpio_get(pin);
+	return gpio_get(pin); // pico 高速デジタル入力
 
 #else
 	return digitalRead(pin);
@@ -55,12 +59,10 @@ bool GET_GPIO_IN(uint8_t pin)
 void SET_GPIO_OUT(uint8_t pin, bool val)
 {
 #if IS_ARDUINO_NANO
-	// fastestDigitalWrite(pin, val);
-	digitalWrite(pin, val);
+	fastestDigitalWrite(pin, val); // 高速デジタル出力
 
 #elif IS_RP_PICO
-	gpio_put(pin, val);
-
+	gpio_put(pin, val); // pico 高速デジタル出力
 #else
 	digitalWrite(pin, val);
 
@@ -76,18 +78,19 @@ void SET_GPIO_OUT(uint8_t pin, bool val)
 int GET_GPIO_PULSE(uint8_t pin)
 {
 #if IS_ARDUINO_NANO
-	int pulse = pulseIn(pin, HIGH, 30000);
+	// int pulse = pulseRead(pin); // pulseReadは安定しない場合があるため保留
+	int pulse = pulseIn(pin, HIGH, 27500);
 
 #elif IS_RP_PICO
 	int pulse = pulseIn(pin, HIGH, 30000);
-	// int pulse = pulseRead(pin);
+	// int pulse = pulseRead(pin); // pulseReadは安定しない場合があるため保留
 
 #else
 	int pulse = pulseIn(pin, HIGH, 30000);
 
 #endif
+	return (pulse > 0) ? pulse : 1500; // タイムアウト時は1500を返す
 	return pulse;
-	return (pulse > 0) ? pulse : 1500;
 }
 
 // 指定したピンからアナログ値を出力(ピン番号,アナログ値)[pin,0~255]
@@ -104,12 +107,27 @@ void SET_GPIO_PWM(uint8_t pin, uint8_t val)
 	SET_GPIO_OUT(pin, (val > 0) ? 1 : 0);
 
 #elif IS_ARDUINO_NANO
-	if (pin == 9)
-		AVR_SET_PWM9DUTY(val);
-	else if (pin == 10)
-		AVR_SET_PWM10DUTY(val);
-	else
-		analogWrite(pin, val);
+	analogWrite(pin, val);
+
+	// switch (pin)
+	// {
+	// case 3:
+	// 	AVR_SET_PWM3DUTY(val);
+	// 	break;
+	// case 9:
+	// 	AVR_SET_PWM9DUTY(val);
+	// 	break;
+	// case 10:
+	// 	AVR_SET_PWM10DUTY(val);
+	// 	break;
+	// case 11:
+	// 	AVR_SET_PWM11DUTY(val);
+	// 	break;
+
+	// default:
+	// 	analogWrite(pin, val);
+	// 	break;
+	// }
 
 #elif IS_RP_PICO
 	analogWrite(pin, val);
