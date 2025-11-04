@@ -48,7 +48,6 @@ void setup()
 	SET_ROBOT_TYPE(RC);					 // 2
 	SET_CONTROLLER_TYPE(FS_NRC); // 3
 
-
 	SET_MD_TYPE(OUT_DIR_4);		 // 4
 	SET_MOTOR_RAMP(1000);			 // 5
 	SET_MOTOR_LIMIT(950);			 // 6
@@ -58,7 +57,6 @@ void setup()
 	SET_MULTI_PORT(STICK1);
 	SET_MULTI_PORT(STICK2);
 	// SET_MULTI_PORT(BTN1);
-
 }
 
 /*
