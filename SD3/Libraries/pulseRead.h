@@ -15,9 +15,9 @@ typedef struct
 {
 	uint32_t start;
 	uint16_t width = 1500; // パルス幅(0~2000)[us]
-	uint16_t width_L;		  // 最後のパルス幅(0~2000)[us]
-	bool state;				  // パルスの状態[0|1]
-	bool state_L;			  // 最後のパルスの状態[0|1]
+	uint16_t width_L;			 // 最後のパルス幅(0~2000)[us]
+	bool state;						 // パルスの状態[0|1]
+	bool state_L;					 // 最後のパルスの状態[0|1]
 } PULSE;
 
 //[変換後のパルス] ローパスフィルタパルスの変化をなめらかにする(変換前のパルス)
@@ -48,7 +48,7 @@ PULSE LPF(PULSE pul)
 int pulseRead(uint8_t i)
 {
 	unsigned int timeout = 30000;
-	static PULSE pulse[30] = {0};
+	static PULSE pulse[30] = {};
 
 	pulse[i].state = digitalRead(i);
 
