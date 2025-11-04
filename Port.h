@@ -20,6 +20,8 @@
 
 // ピンアサイン
 //----------------------------------------------------------------------
+#define PIN_UNUSED -1 // 使用しないピン番号
+
 #define L1 0 // 左前方センサー
 #define R1 1
 
@@ -43,7 +45,10 @@
 #define FREE1 14 // 未定義1
 #define FREE2 15 // 未定義2
 
-#if IS_RAK11300
+#if IS_MINIZADE
+#define STICK1 4 // ラジコン型 左スティック
+#define STICK2 5 // ラジコン型 右スティック
+#elif IS_RAK11300
 #define STICK1 7 // ラジコン型 左スティック
 #define STICK2 8 // ラジコン型 右スティック
 #else
@@ -52,15 +57,17 @@
 #endif
 
 #if IS_RAK11300
-#define PB1 0
-#define PB2 1
-#define PB3 2
-#define PB4 3
+#define BTN1 0
+#define BTN2 1
+#define BTN3 2
+#elif IS_MINIZADE
+#define BTN1 6
+#define BTN2 PIN_UNUSED // 未使用
+#define BTN3 PIN_UNUSED // 未使用
 #else
-#define PB1 18 // コントローラー ボタン1
-#define PB2 19
-#define PB3 20
-#define PB4 21
+#define BTN1 18 // コントローラー ボタン1
+#define BTN2 19
+#define BTN3 20
 #endif
 
 // 22 アーム型 ソレノイド
@@ -111,11 +118,18 @@ int state[30] = {0};
 // 状態を取得(ピン番号)
 /**
  * @brief ポートの状態を取得
- * @param i ポート番号
+ * @param i ポート番号 (int にして範囲/無効値チェックを行う)
  * @return ポートの状態
  */
-int update_port(uint8_t i)
+// 変更: 引数型を int にして負の case ラベルを許容する
+int update_port(int i)
 {
+	// 無効ピンまたは配列範囲外は即時0を返す（安全化）
+	if (i == PIN_UNUSED)
+		return 0;
+	if (i < 0 || i >= (int)(sizeof(state) / sizeof(state[0])))
+		return 0;
+
 	switch (i)
 	{
 	// コントローラー
@@ -127,7 +141,7 @@ int update_port(uint8_t i)
 			state[i] = !GET_GPIO_IN(i);
 		break;
 
-	case PB1:
+	case BTN1:
 		if (GET_CONTROLLER_TYPE() == KO_MC8)
 			state[i] = (GET_GPIO_PULSE(i) > 1750) ? 1 : 0;
 		else if (GET_CONTROLLER_TYPE() == FS_NRC)
@@ -136,15 +150,7 @@ int update_port(uint8_t i)
 			state[i] = !GET_GPIO_IN(i);
 		break;
 
-	case PB2:
-	case PB3:
-	case PB4:
-		if (GET_CONTROLLER_TYPE() == FS_NRC)
-			state[i] = GET_GPIO_IN(i);
-		else
-			state[i] = !GET_GPIO_IN(i);
-		break;
-
+	// ST_MODULE
 	case ST_MODULE:
 		state[i] = GET_GPIO_IN(i);
 		break;
@@ -205,6 +211,17 @@ void print_port(uint8_t first, uint8_t last)
 			Serial.print(", ");
 	}
 	Serial.println();
+}
+
+// プロポの値反転用
+static bool g_controller_invert = false;
+
+void SET_CONTROLLER_INVERT(bool invert) {
+    g_controller_invert = invert;
+}
+
+bool GET_CONTROLLER_INVERT() {
+    return g_controller_invert;
 }
 
 // ラズパイピコ限定 マルチスレッド処理
