@@ -1,6 +1,13 @@
 // ラジコン制御
 
 // コントローラーのスティック値をdutyに変換(スティック値1,スティック値2)[上下軸,上下軸]
+/**
+ * @brief コントローラーのスティック値をdutyに変換(スティック値1,スティック値2)[上下軸,上下軸]
+ * @param pin1 スティック値1のピン番号
+ * @param pin2 スティック値2のピン番号
+ * @return void
+ * @note pin1: 左右軸 pin2: 前後軸
+ */
 void SET_RC_STICK_DUTY(uint8_t pin1, uint8_t pin2)
 {
 	static int pulse1 = 0, pulse2 = 0;
@@ -37,25 +44,33 @@ void SET_RC_STICK_DUTY(uint8_t pin1, uint8_t pin2)
 }
 
 // コントローラーのスティック値をdutyに変換(スティック値1,スティック値2)[左右軸,上下軸]
+/**
+ * @brief コントローラーのスティック値をdutyに変換(スティック値1,スティック値2)[左右軸,上下軸]
+ * @param pin1 スティック値1のピン番号
+ * @param pin2 スティック値2のピン番号
+ * @return void
+ * @note pin1: 左右軸 pin2: 前後軸
+ */
 void SET_RC_WHEEL_DUTY(uint8_t pin1, uint8_t pin2)
 {
-	static int throttle = 0, steer = 0;
+	static int pulse1 = 0, pulse2 = 0;
+	static int steer = 0, throttle = 0;
 	static int m1duty = 0, m2duty = 0;
 
-	steer = port(pin1);
-	throttle = port(pin2);
+	pulse1 = port(pin1);
+	pulse2 = port(pin2);
 
-	m1duty = STICK_TO_DUTY(steer);
-	m2duty = STICK_TO_DUTY(throttle);
+	steer = STICK_TO_DUTY(pulse1);
+	throttle = STICK_TO_DUTY(pulse2);
 
 	// 旋回
 	if (throttle > 0) // 前進
 	{
 		// 片軸の出力を下げる
 		if (steer < 0) // 左旋回(マイナス値)
-			m1duty = 0, m2duty = 1000;
+			m1duty = -500, m2duty = 1000;
 		else if (0 < steer) // 右旋回(プラス値)
-			m1duty = 1000, m2duty = 0;
+			m1duty = 1000, m2duty = -500;
 		else
 		{
 			m1duty = 1000, m2duty = 1000;
@@ -67,9 +82,9 @@ void SET_RC_WHEEL_DUTY(uint8_t pin1, uint8_t pin2)
 	{
 		// 片軸の出力を上げる
 		if (steer < 0) // 左バック
-			m1duty = -1000, m2duty = 0;
+			m1duty = -1000, m2duty = 500;
 		else if (0 < steer) // 右バック
-			m1duty = 0, m2duty = -1000;
+			m1duty = 500, m2duty = -1000;
 		else
 		{
 			m1duty = -1000, m2duty = -1000;
@@ -81,9 +96,9 @@ void SET_RC_WHEEL_DUTY(uint8_t pin1, uint8_t pin2)
 	{
 		// その場で旋回
 		if (steer < 0) // 左バック
-			m1duty = -1000, m2duty = 0;
+			m1duty = -1000, m2duty = 1000;
 		else if (0 < steer) // 右バック
-			m1duty = 0, m2duty = -1000;
+			m1duty = 1000, m2duty = -1000;
 		else
 		{
 			m1duty = 0, m2duty = 0;
