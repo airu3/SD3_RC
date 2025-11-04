@@ -14,9 +14,10 @@ typedef unsigned int uint;
 typedef unsigned long ulong;
 
 // 外部ライブラリ
-// #include "Libraries/ae7seg.cpp"
+// #include "Libraries/ae7seg.cpp" // 7セグメントLED表示ライブラリ
 #include "Libraries/fastestDigitalRW.hpp"
 #include "Libraries/AVR_Timer.h"
+#include "Libraries/pulseRead.h"
 
 #include "Assign.h"
 #include "Config.h"
