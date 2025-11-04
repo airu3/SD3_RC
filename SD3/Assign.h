@@ -9,14 +9,18 @@
 
 // 基板固有ピンアサイン判定
 //------------------------------------------------------
-// Arduino nanoかどうか
-#if defined(__AVR_ATmega328P__)
+// Arduino nanoかどうか（ボード名優先、なければMCUで判定）
+#if defined(ARDUINO_AVR_NANO) || defined(ARDUINO_AVR_NANO_ON_BOARD)
+#define IS_ARDUINO_NANO 1
+#elif defined(__AVR_ATmega328P__)
+// MCUがATmega328Pなら互換扱い（厳密ではない）
 #define IS_ARDUINO_NANO 1
 #else
 #define IS_ARDUINO_NANO 0
 #endif
+
 // Arduino nano minizade基板かどうか
-#if defined(__AVR_ATmega328P__) && defined(MINIZADE)
+#if defined(MINIZADE)
 #define IS_MINIZADE 1
 #else
 #define IS_MINIZADE 0
@@ -100,7 +104,14 @@
 
 // DIPスイッチ
 //----------------------------------------------------------------------
-#define DIP1 18 // 最下位ビット
-#define DIP2 19
-#define DIP3 20
-#define DIP4 21 // 最上位ビット
+#if IS_MINIZADE
+#define DIP4 -1 // 未使用
+#define DIP3 12 // 最上位ビット
+#define DIP2 8
+#define DIP1 7 // 最下位ビット
+#else
+#define DIP4 18 // 最上位ビット
+#define DIP3 19
+#define DIP2 20
+#define DIP1 21 // 最下位ビット
+#endif
