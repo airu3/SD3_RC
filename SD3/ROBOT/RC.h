@@ -39,7 +39,7 @@ void SET_STICK_DEAD_ZONE(float percent)
  * @param pulse スティックの計測値
  * @return 不感帯かどうか[0|1]
  *
-*/
+ */
 bool DEAD_ZONE(uint16_t pulse)
 {
 	return (S.dead_zone[LL] <= pulse) && (pulse <= S.dead_zone[UL]);
@@ -50,8 +50,8 @@ bool DEAD_ZONE(uint16_t pulse)
  * @brief スティック計測値をdutyに変換(パルス値)[1000~2000]
  * @param pulse スティックの計測値
  * @return duty値[-1000~1000]
- * 
-*/
+ *
+ */
 int STICK_TO_DUTY(uint16_t pulse)
 {
 	static int duty = 0;
