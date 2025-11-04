@@ -8,7 +8,9 @@ void setup()
 {
 #if defined(DEBUG_MODE)
 	Serial.begin(2000000);
-	delay(3000);
+	// つながるまで待機
+	while (!Serial)
+		;
 #endif
 
 	// mode
@@ -31,10 +33,10 @@ void setup()
 	// pinMode(FREE2, INPUT_PULLUP);
 	pinMode(STICK1, INPUT_PULLUP);
 	pinMode(STICK2, INPUT_PULLUP);
-	pinMode(PB1, INPUT_PULLUP);
-	pinMode(PB2, INPUT_PULLUP);
-	pinMode(PB3, INPUT_PULLUP);
-	pinMode(PB4, INPUT_PULLUP);
+	pinMode(BTN1, INPUT_PULLUP);
+	// pinMode(BTN2, INPUT_PULLUP);
+	// pinMode(BTN3, INPUT_PULLUP);
+	// pinMode(BTN4, INPUT_PULLUP);
 
 	// pinMode(ARM_SOLENOID, OUTPUT);
 	//  pinMode(FREE3, INPUT_PULLUP);
@@ -44,19 +46,19 @@ void setup()
 	SET_STICK_DEAD_ZONE(30); // 1
 
 	SET_ROBOT_TYPE(RC);					 // 2
-	SET_CONTROLLER_TYPE(KO_MC8); // 3
+	SET_CONTROLLER_TYPE(FS_NRC); // 3
+
 
 	SET_MD_TYPE(OUT_DIR_4);		 // 4
-	SET_MOTOR_RAMP(50);				 // 5
+	SET_MOTOR_RAMP(1000);			 // 5
 	SET_MOTOR_LIMIT(950);			 // 6
 	SET_MOTOR_DIRECTION(1, 1); // 7
-	SET_PWM_FREQ(30000);			 // 8
+	// SET_PWM_FREQ(8000);				 // 8 minizade基板は8000Hz低めでトルク重視
 
 	SET_MULTI_PORT(STICK1);
 	SET_MULTI_PORT(STICK2);
-	// SET_MULTI_PORT(PB1);
+	// SET_MULTI_PORT(BTN1);
 
-	SOUND(0);
 }
 
 /*
