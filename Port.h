@@ -229,6 +229,7 @@ bool GET_CONTROLLER_INVERT() {
 // マルチスレッド処理用の関数
 void loop1()
 {
+	// Serial.println("Start loop1");
 	for (uint8_t i = 0; i <= GPIO_MAX; i++)
 	{
 		// 指定した並列処理用ポートだけを更新し続ける
